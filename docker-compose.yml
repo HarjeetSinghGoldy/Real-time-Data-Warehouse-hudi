@@ -121,3 +121,71 @@ services:
   #   ports:
   #     - "9000:9000"
   #   command: server /data
+
+
+# 1. `zookeeper`:
+#    - Image: `debezium/zookeeper:1.5`
+#    - Purpose: Runs Apache ZooKeeper, which is used for distributed coordination in the Kafka ecosystem.
+#    - Ports: Exposes ports 2181, 2888, and 3888.
+
+# 2. `kafka`:
+#    - Image: `debezium/kafka:1.5`
+#    - Purpose: Runs Apache Kafka, a distributed streaming platform.
+#    - Ports: Exposes port 9092.
+#    - Links to `zookeeper` for ZooKeeper coordination.
+#    - Configures `ZOOKEEPER_CONNECT` to point to the `zookeeper` service.
+
+# 3. `postgres`:
+#    - Image: `debezium/postgres:11`
+#    - Purpose: Runs a PostgreSQL database.
+#    - Ports: Exposes port 5432.
+#    - Configures environment variables for PostgreSQL user and password.
+#    - Mounts volumes for initializing the database and storing PostgreSQL data.
+
+# 4. `connect`:
+#    - Image: `debezium/connect:1.5`
+#    - Purpose: Runs Debezium Connect, a platform for change data capture (CDC) and data integration.
+#    - Ports: Exposes port 8083.
+#    - Links to `kafka` and `postgres` for communication.
+#    - Configures various environment variables for Debezium Connect settings.
+
+# 5. `flink-base-img`:
+#    - Build: Builds a Docker image using a Dockerfile (`Dockerfile.base`) from the `./client-image` directory.
+#    - Purpose: Creates a base image for Flink jobs.
+
+# 6. `sql-client`:
+#    - Build: Builds a Docker image using files from the `./client-image` directory.
+#    - Purpose: Likely a Flink SQL client.
+#    - Depends on `kafka`, `jobmanager`, and `elasticsearch`.
+#    - Configures environment variables for various services.
+
+# 7. `jobmanager`:
+#    - Image: `rtdw/flink-base`
+#    - Purpose: Runs the Flink JobManager component.
+#    - Ports: Exposes port 8081 for Flink web interface.
+#    - Configures Flink properties using environment variables.
+#    - Mounts volumes for data and checkpoints.
+
+# 8. `taskmanager`:
+#    - Image: `rtdw/flink-base`
+#    - Purpose: Runs the Flink TaskManager component.
+#    - Depends on `jobmanager`.
+#    - Configures Flink properties using environment variables.
+#    - Mounts volumes for data and checkpoints.
+
+# 9. `elasticsearch`:
+#    - Image: `docker.elastic.co/elasticsearch/elasticsearch:7.17.11`
+#    - Purpose: Runs Elasticsearch, a distributed search and analytics engine.
+#    - Exposes ports 9200 and 9300.
+#    - Configures various Elasticsearch environment variables.
+
+# 10. `kibana`:
+#     - Image: `docker.elastic.co/kibana/kibana:7.11.2`
+#     - Purpose: Runs Kibana, a web interface for Elasticsearch.
+#     - Exposes port 5601.
+
+# 11. `minio` (commented out):
+#     - Image: `minio/minio`
+#     - Purpose: Likely used for object storage, but it's currently commented out.
+
+# This Docker Compose configuration defines a complex application stack with various interconnected services, including Kafka, Flink, PostgreSQL, Elasticsearch, Kibana, and potentially Minio for object storage. It seems to be a part of a data processing pipeline, possibly for real-time data streaming and analytics.

@@ -43,4 +43,7 @@ CREATE TABLE dws.accident_claims (claim_id BIGINT,claim_total DOUBLE,claim_total
 INSERT INTO dws.accident_claims (claim_id,claim_total,claim_total_receipt,claim_currency,member_id,accident_date,accident_type,accident_detail,claim_date,claim_status,ts_created,ts_updated,ds) VALUES (1,1000.00,'Receipt123','USD',12345,'2023-09-07','Car Accident','Collision','2023-09-07','Pending','2023-09-07 10:00:00','2023-09-07 10:30:00','2023-09');
 
 INSERT INTO datasource.accident_claims SELECT claim_id,claim_total,claim_total_receipt,claim_currency,member_id,accident_date,accident_type,accident_detail,claim_date,claim_status,ts_created,ts_updated,SUBSTRING(claim_date, 0, 9) FROM datasource.accident_claims;
-252,471.26
+
+
+
+ cat ./postgres_datagen.sql | docker exec -i real-time-data-warehouse-hudi_postgres_1 psql -U postgres -d postgres

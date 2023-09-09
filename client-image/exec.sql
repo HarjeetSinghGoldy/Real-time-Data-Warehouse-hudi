@@ -267,3 +267,45 @@ SELECT claim_id,
        ts_updated,
        SUBSTRING(claim_date, 0, 9)
 FROM datasource.accident_claims;
+
+
+
+
+CREATE TABLE dws.members
+(
+    id                BIGINT,
+    first_name        VARCHAR(50),
+    last_name         VARCHAR(50),
+    address           VARCHAR(50),
+    address_city      VARCHAR(10),
+    address_country   VARCHAR(10),
+    insurance_company VARCHAR(25),
+    insurance_number  VARCHAR(50),
+    ts_created        VARCHAR(20),
+    ts_updated        VARCHAR(20),
+    ds                  VARCHAR(20),
+    PRIMARY KEY (id) NOT ENFORCED
+) WITH (
+      'connector' = 'elasticsearch-7',
+      'hosts' = 'http://elasticsearch:9200', 
+      'index' = 'members'
+      );
+
+
+
+INSERT INTO dws.members
+SELECT id,
+       first_name,
+       last_name,
+       address,
+       address_city,
+       address_country,
+       insurance_company,
+       insurance_number,
+       ts_created,
+       ts_updated,
+       ds
+FROM dwb.members;
+
+
+ cat ./postgres_datagen.sql | docker exec -i real-time-data-warehouse-hudi_postgres_1 psql -U postgres -d postgres

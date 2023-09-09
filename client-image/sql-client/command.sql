@@ -61,6 +61,10 @@ curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json"
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-postgres-members.json
 
 
+curl http://localhost:8083/connectors/claims-connector/status # | jq
+curl http://localhost:8083/connectors/members-connector/status # | jq
+
+
 curl -i -X PUT -H "Accept: application/json" -H "Content-Type: application/json" \
 http://localhost:8083/connectors/claims-connector/config \
 -d @register-postgres.json
@@ -73,13 +77,16 @@ curl -i -X DELETE http://localhost:8083/connectors/claims-connector
 curl -X POST http://localhost:8083/connectors/members-connector/restart
 curl -X POST http://localhost:8083/connectors/claims-connector/restart
 
-SELECT pg_drop_replication_slot('claims-connector');
+
+SELECT slot_name FROM pg_replication_slots;
+SELECT pg_drop_replication_slot('slot_claims');
+SELECT pg_drop_replication_slot('slot_member');
 
 docker compose exec kafka /kafka/bin/kafka-console-consumer.sh \
     --bootstrap-server kafka:9092 \
     --from-beginning \
     --property print.key=true \
-    --topic pg_claims.claims.members
+    --topic pg_claims.claims.accident_claims
 
 
 docker compose exec kafka /kafka/bin/kafka-console-consumer.sh \
@@ -159,3 +166,6 @@ curl -X POST http://CONNECT_REST_URL/connectors/CONNECTOR_NAME/restart
 
 
 ./bin/flink cancel -a
+
+
+ cat ./postgres_datagen.sql | docker exec -i real-time-data-warehouse-hudi_postgres_1 psql -U postgres -d postgres
